@@ -11,6 +11,18 @@ local Cache = {
 
 local Located = true
 local Last = 0
+local PrintedBodyParts = {}
+
+local function PrintBodyParts(Model, Parts)
+	if not Model or PrintedBodyParts[Model] then return end
+	PrintedBodyParts[Model] = true
+	print("--- Body parts: " .. Model.Name .. " ---")
+	for Name, Part in pairs(Parts) do
+		if Part then
+			print(Name .. ": " .. Part:GetFullName())
+		end
+	end
+end
 
 local function GetWeapon(Entity)
 	if not Entity then return "None" end
@@ -271,6 +283,7 @@ local function PlayerScan(LocalPlayer, LocalCharacter, TState, Seen)
 			
 			local Key = tostring(Character)
 			local Weapon = GetWeapon(Character)
+			PrintBodyParts(Character, Parts)
 			
 			if TState and LocalPlayer.Team and Player.Team == LocalPlayer.Team then
 				if Cache.Instances[Key] then
@@ -313,6 +326,7 @@ local function NPCScan(LocalCharacter, Seen, PlayerCharacters)
 
 		local Key = tostring(NPC)
 		local Humanoid = NPC:FindFirstChildOfClass("Humanoid")
+		PrintBodyParts(NPC, Parts)
 		local Weapon = GetWeapon(NPC)
 
 		if not Cache.Instances[Key] then
@@ -337,7 +351,7 @@ RunService.PostLocal:Connect(function()
 	local PlayerCharacters = {}
 
 	-- Build this lookup once per update instead of checking all players for each NPC.
-	for _, Player in ipairs(Players:GetPlayers()) do
+	for _, Player in ipairs(Players:GetChildren()) do
 		if Player.Character then
 			PlayerCharacters[Player.Character] = true
 		end
